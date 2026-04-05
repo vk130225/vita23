@@ -7,7 +7,6 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <link rel="stylesheet" href="vita.css">
 
     <style>
@@ -18,8 +17,6 @@
         .gradient-bg { background: linear-gradient(135deg, #fef3c7 0%, #fff7ed 50%, #fee2e2 100%); }
         .layer-card { transition: all 0.3s ease; }
         .layer-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
-        
-        /* Fixed: Ensure smooth scrolling for nav links */
         html { scroll-behavior: smooth; }
     </style>
 </head>
@@ -120,7 +117,47 @@
                     <h3 class="font-bold text-lg mb-2">Multi-API Monitoring</h3>
                     <p class="text-sm text-gray-400">OpenWeather, AQICN, and Social signals monitor real-time zone risk.</p>
                 </div>
+                <div class="layer-card bg-slate-800 p-6 rounded-3xl border border-slate-700">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center font-black text-lg">2</div>
+                        <div class="text-xs font-black text-blue-400 uppercase tracking-widest">Triangulation</div>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Cellular Mapping</h3>
+                    <p class="text-sm text-gray-400">50m grid precision using cellular tower data, completely independent from GPS.</p>
                 </div>
+                <div class="layer-card bg-slate-800 p-6 rounded-3xl border border-slate-700">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center font-black text-lg">3</div>
+                        <div class="text-xs font-black text-green-400 uppercase tracking-widest">Anti-Spoofing</div>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">One-Class SVM</h3>
+                    <p class="text-sm text-gray-400">Detects fake GPS locations by cross-referencing hardware sensor fusion data.</p>
+                </div>
+                <div class="layer-card bg-slate-800 p-6 rounded-3xl border border-slate-700">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center font-black text-lg">4</div>
+                        <div class="text-xs font-black text-purple-400 uppercase tracking-widest">Fraud Check</div>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">DBSCAN Clustering</h3>
+                    <p class="text-sm text-gray-400">Identifies suspicious claim "rings" versus natural weather-based distributions.</p>
+                </div>
+                <div class="layer-card bg-slate-800 p-6 rounded-3xl border border-slate-700">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-pink-500 rounded-xl flex items-center justify-center font-black text-lg">5</div>
+                        <div class="text-xs font-black text-pink-400 uppercase tracking-widest">Activity Audit</div>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Sensor Fusion</h3>
+                    <p class="text-sm text-gray-400">Accelerometer and Gyroscope data verifies the worker is actually in the field.</p>
+                </div>
+                <div class="layer-card bg-slate-800 p-6 rounded-3xl border border-slate-700">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-cyan-500 rounded-xl flex items-center justify-center font-black text-lg">6</div>
+                        <div class="text-xs font-black text-cyan-400 uppercase tracking-widest">Final Call</div>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">XGBoost Decision</h3>
+                    <p class="text-sm text-gray-400">Final correlation engine that approves instant payouts with 98% accuracy.</p>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -138,11 +175,11 @@
                 </div>
                 <div class="flex flex-col items-center gap-2">
                     <i class="fa-solid fa-brain text-4xl text-purple-500"></i>
-                    <span class="text-xs font-bold">Scikit-Learn</span>
+                    <span class="text-xs font-bold">ML Engine</span>
                 </div>
                 <div class="flex flex-col items-center gap-2">
                     <i class="fa-brands fa-github text-4xl text-black"></i>
-                    <span class="text-xs font-bold">Actions</span>
+                    <span class="text-xs font-bold">GitOps</span>
                 </div>
             </div>
         </div>
@@ -165,8 +202,8 @@
 
     <footer class="bg-white py-12 px-4">
         <div class="max-w-6xl mx-auto text-center border-t border-gray-100 pt-10">
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">VITA Research Project • Amrita Bengaluru</p>
-            <p class="text-[10px] text-gray-300">&copy; 2026 VITA-INSURATECH. All code assets are property of the dev team.</p>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">VITA Research Project • Amrita Vishwa Vidyapeetham</p>
+            <p class="text-[10px] text-gray-300">&copy; 2026 VITA-INSURATECH. All rights reserved.</p>
         </div>
     </footer>
 
