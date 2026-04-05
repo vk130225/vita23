@@ -6,143 +6,177 @@
   <link rel="stylesheet" href="vita.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    .trust-grid { display:grid; grid-template-columns:340px 1fr; gap:1rem; }
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap');
+    
+    .trust-grid { display:grid; grid-template-columns:360px 1fr; gap:1.5rem; }
     @media(max-width:900px){.trust-grid{grid-template-columns:1fr;}}
-    .stat-row { display:flex; justify-content:space-between; align-items:center; padding:0.625rem 0; border-bottom:1px solid #f1f5f9; font-size:0.8125rem; }
+    
+    .stat-row { display:flex; justify-content:space-between; align-items:center; padding:0.85rem 0; border-bottom:1px solid #f1f5f9; }
     .stat-row:last-child { border-bottom:none; }
+    
+    .progress-bg { background: #f1f5f9; height: 8px; border-radius: 4px; overflow: hidden; }
+    .progress-bar { height: 100%; transition: width 1s ease; }
   </style>
 </head>
-<body>
-<div id="sidebar"></div>
-<div id="main">
-  <div id="topbar"></div>
-  <div id="page-content">
+<body class="bg-gray-50">
 
-    <div class="fade-up" style="margin-bottom:1.25rem;">
-      <h1 style="font-size:1.25rem;font-weight:900;">Trust Score</h1>
-      <p style="font-size:0.75rem;color:#94a3b8;margin-top:2px;">Your platform reputation & claim approval analytics</p>
+<div id="main" class="max-w-7xl mx-auto p-4 md:p-8">
+    <div class="fade-up" style="margin-bottom:2rem;">
+      <h1 style="font-size:1.75rem;font-weight:900;color:#0f172a;">Reputation Engine</h1>
+      <p style="font-size:0.85rem;color:#64748b;margin-top:4px;">Machine Learning trust index & claim analytics</p>
     </div>
 
     <div class="trust-grid fade-up">
-      <!-- Big trust ring -->
-      <div class="card card-pad" style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:1rem;">
-        <div class="card-title" style="margin-bottom:0;align-self:flex-start;">Trust Index</div>
-        <svg width="160" height="160" viewBox="0 0 160 160">
-          <circle cx="80" cy="80" r="64" fill="none" stroke="#f1f5f9" stroke-width="12"/>
-          <circle id="trust-ring" cx="80" cy="80" r="64" fill="none" stroke="#22c55e" stroke-width="12"
-            stroke-linecap="round" stroke-dasharray="402.1" stroke-dashoffset="402.1"
-            transform="rotate(-90 80 80)" style="transition:stroke-dashoffset 1.2s ease;"/>
-          <text x="80" y="88" text-anchor="middle" font-family="JetBrains Mono" font-size="32" font-weight="700" fill="#0f172a" id="trust-score-text">—</text>
-        </svg>
-        <div>
-          <div style="font-size:1.5rem;font-weight:900;color:#0f172a;" id="trust-level-text">—</div>
-          <div style="font-size:0.75rem;color:#94a3b8;margin-top:4px;" id="trust-desc">Loading trust data...</div>
+      <div class="card p-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col items-center text-center">
+        <h2 class="text-xs font-black uppercase text-slate-400 tracking-widest self-start mb-8">Trust Index Score</h2>
+        
+        <div class="relative flex items-center justify-center">
+            <svg width="180" height="180" viewBox="0 0 160 160">
+              <circle cx="80" cy="80" r="64" fill="none" stroke="#f8fafc" stroke-width="12"/>
+              <circle id="trust-ring" cx="80" cy="80" r="64" fill="none" stroke="#22c55e" stroke-width="12"
+                stroke-linecap="round" stroke-dasharray="402.1" stroke-dashoffset="402.1"
+                transform="rotate(-90 80 80)" style="transition:stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);"/>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span id="trust-score-text" class="text-4xl font-black text-slate-800" style="font-family:'JetBrains Mono';">--</span>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">SCORE</span>
+            </div>
         </div>
-        <button class="btn-primary" style="width:100%;" onclick="loadTrust()">
-          <i class="fa-solid fa-rotate"></i> Recalculate
+
+        <div class="mt-8">
+          <div id="trust-level-text" class="text-2xl font-black text-slate-800 uppercase tracking-tight">ANALYZING...</div>
+          <p id="trust-desc" class="text-xs text-slate-400 mt-2 font-medium">Synchronizing with backend...</p>
+        </div>
+        
+        <button class="brand-orange text-white w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest mt-10 hover:scale-[1.02] transition-all shadow-lg shadow-orange-100" onclick="loadTrust()">
+          <i class="fa-solid fa-rotate mr-2"></i> Recalculate Index
         </button>
       </div>
 
-      <!-- Stats -->
-      <div style="display:flex;flex-direction:column;gap:1rem;">
-        <div class="card card-pad">
-          <div class="card-title">Platform Statistics</div>
+      <div class="space-y-6">
+        <div class="card p-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm">
+          <h3 class="text-xs font-black uppercase text-slate-800 tracking-widest mb-6">Platform Statistics</h3>
           <div id="stats-rows">
-            <div style="height:2rem;border-radius:0.5rem;" class="shimmer"></div>
+            <div class="h-10 bg-slate-50 animate-pulse rounded-lg mb-4"></div>
+            <div class="h-10 bg-slate-50 animate-pulse rounded-lg"></div>
           </div>
         </div>
 
-        <div class="card card-pad">
-          <div class="card-title">Zone Breakdown</div>
-          <div id="zone-breakdown"></div>
+        <div class="card p-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm">
+          <h3 class="text-xs font-black uppercase text-slate-800 tracking-widest mb-6">Zone Experience Distribution</h3>
+          <div id="zone-breakdown" class="space-y-6">
+            </div>
         </div>
 
-        <div class="card card-pad" style="background:#f0fdf4;border-color:#bbf7d0;">
-          <div style="display:flex;align-items:center;gap:0.75rem;">
-            <div style="width:2.5rem;height:2.5rem;border-radius:0.75rem;background:#dcfce7;display:flex;align-items:center;justify-content:center;color:#16a34a;font-size:1.125rem;flex-shrink:0;">
-              <i class="fa-solid fa-shield-check"></i>
+        <div class="card p-6 bg-green-50 border-2 border-green-100 rounded-[1.5rem] flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-green-600 shadow-sm">
+              <i class="fa-solid fa-bolt-lightning text-xl"></i>
             </div>
             <div>
-              <div style="font-size:0.875rem;font-weight:900;color:#0f172a;">Fast-Track Eligible</div>
-              <div style="font-size:0.75rem;color:#64748b;margin-top:2px;">High trust → auto-approve claims without manual review</div>
+              <div class="text-sm font-black text-slate-800 uppercase">Fast-Track Status</div>
+              <div class="text-xs text-green-700 font-medium">Score > 75: Claims bypass manual audit layers.</div>
             </div>
-          </div>
         </div>
       </div>
     </div>
 
-    <!-- Retrain panel -->
-    <div class="card card-pad fade-up" style="margin-top:1rem;background:#fafafa;">
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div>
-          <div style="font-size:0.875rem;font-weight:900;">ML Model Retraining</div>
-          <div style="font-size:0.75rem;color:#94a3b8;margin-top:2px;">Trigger manual retrain with latest claim_store.json data (train.py)</div>
+    <div class="mt-8 p-8 bg-slate-900 rounded-[2rem] border border-slate-800 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-orange-500">
+                <i class="fa-solid fa-brain"></i>
+            </div>
+            <div>
+                <h4 class="text-white font-bold">AI Model Retraining</h4>
+                <p class="text-slate-500 text-xs mt-1">Updates SVM and XGBoost weights based on recent claim history.</p>
+            </div>
         </div>
-        <button class="btn-ghost" id="retrain-btn" onclick="triggerRetrain()">
-          <i class="fa-solid fa-brain"></i> Retrain Models
+        <button id="retrain-btn" class="bg-slate-800 text-slate-300 px-8 py-3 rounded-xl font-bold text-xs hover:bg-slate-700 transition-all border border-slate-700" onclick="triggerRetrain()">
+            RETRAIN MODELS
         </button>
-      </div>
     </div>
-
-  </div>
 </div>
-<div id="toast-wrap"></div>
+
 <script src="vita.js"></script>
 <script>
-VITA.init({ page: 'trust' }).then(loadTrust);
+const BACKEND_URL = "https://vita23-backend.onrender.com";
+
+window.addEventListener('DOMContentLoaded', loadTrust);
 
 async function loadTrust() {
-  const trust = await VITA.api('/api/trust');
-  if (!trust) { VITA.toast('Failed to load trust data', 'error'); return; }
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/trust`);
+    const trust = await response.json();
 
-  const score = trust.trust_index || 0;
-  const ring  = document.getElementById('trust-ring');
-  ring.style.strokeDashoffset = 402.1 * (1 - score/100);
-  ring.style.stroke = score>=70?'#22c55e':score>=50?'#eab308':'#ef4444';
-  document.getElementById('trust-score-text').textContent = score;
-  document.getElementById('trust-level-text').textContent = trust.trust_level || 'Standard';
-  document.getElementById('trust-desc').textContent = `Based on ${trust.evaluated_claims} evaluated claims · ${trust.approval_rate}% approval`;
+    if (!response.ok) throw new Error("Load failed");
 
-  // Stats rows
-  const rows = [
-    ['Total Claims',      trust.evaluated_claims,                '#0f172a'],
-    ['Approval Rate',     trust.approval_rate+'%',               '#e65a28'],
-  ];
-  document.getElementById('stats-rows').innerHTML = rows.map(([label,val,color]) => `
-    <div class="stat-row">
-      <span style="color:#64748b;">${label}</span>
-      <span style="font-weight:900;font-family:'JetBrains Mono',monospace;color:${color};">${val}</span>
-    </div>`).join('');
+    // Update Ring
+    const score = trust.trust_index || 0;
+    const ring = document.getElementById('trust-ring');
+    const offset = 402.1 * (1 - score/100);
+    ring.style.strokeDashoffset = offset;
+    ring.style.stroke = score >= 75 ? '#22c55e' : score >= 50 ? '#f59e0b' : '#ef4444';
+    
+    document.getElementById('trust-score-text').textContent = score;
+    document.getElementById('trust-level-text').textContent = trust.trust_level || 'PLATINUM';
+    document.getElementById('trust-level-text').style.color = score >= 75 ? '#22c55e' : '#f59e0b';
+    document.getElementById('trust-desc').textContent = `Based on ${trust.evaluated_claims} claims with ${trust.approval_rate}% success.`;
 
-  // Zone breakdown
-  document.getElementById('zone-breakdown').innerHTML = Object.entries(trust.by_zone || {}).map(([z,c]) => {
-    const total = trust.evaluated_claims || 1;
-    const pct   = Math.round(c/total*100);
-    const cols  = {GREEN:'#22c55e',YELLOW:'#eab308',ORANGE:'#f97316',RED:'#ef4444'};
-    return `<div style="margin-bottom:0.625rem;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-        ${VITA.chip(z)} <span style="font-size:0.75rem;font-weight:900;font-family:'JetBrains Mono',monospace;">${c} (${pct}%)</span>
-      </div>
-      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${cols[z]};"></div></div>
-    </div>`;
-  }).join('');
+    // Render Stats
+    document.getElementById('stats-rows').innerHTML = `
+        <div class="stat-row">
+            <span class="text-xs font-bold text-slate-500 uppercase">Total Claims Evaluated</span>
+            <span class="font-black text-slate-800" style="font-family:'JetBrains Mono';">${trust.evaluated_claims}</span>
+        </div>
+        <div class="stat-row">
+            <span class="text-xs font-bold text-slate-500 uppercase">Claims Approval Ratio</span>
+            <span class="font-black text-orange-500" style="font-family:'JetBrains Mono';">${trust.approval_rate}%</span>
+        </div>
+    `;
+
+    // Render Zone Bars
+    const zoneCols = {GREEN:'#22c55e', YELLOW:'#f59e0b', ORANGE:'#f97316', RED:'#ef4444'};
+    document.getElementById('zone-breakdown').innerHTML = Object.entries(trust.by_zone || {}).map(([z, count]) => {
+        const pct = Math.round((count / trust.evaluated_claims) * 100) || 0;
+        return `
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <span class="px-2 py-0.5 rounded bg-slate-100 text-[10px] font-black text-slate-600">${z} ZONE</span>
+                    <span class="text-[10px] font-bold text-slate-400">${count} Claims (${pct}%)</span>
+                </div>
+                <div class="progress-bg">
+                    <div class="progress-bar" style="width:${pct}%; background:${zoneCols[z] || '#e65a28'};"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+  } catch (err) {
+    console.error(err);
+    alert("Connection to VITA engine failed. Retrying...");
+  }
 }
 
 async function triggerRetrain() {
   const btn = document.getElementById('retrain-btn');
   btn.disabled = true;
-  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Training...';
-  VITA.toast('Retraining models in background...', 'info');
-  const result = await VITA.api('/api/train'); // POST handled via fetch directly
+  btn.className = "bg-orange-500 text-white px-8 py-3 rounded-xl font-bold text-xs animate-pulse";
+  btn.innerHTML = '<i class="fa-solid fa-microchip fa-spin mr-2"></i> OPTIMIZING MODELS...';
+
   try {
-    const r = await fetch(VITA.API + '/api/train', { method:'POST' });
-    const d = await r.json();
-    VITA.toast(d.message || 'Retrain started', 'success');
-  } catch {
-    VITA.toast('Retrain triggered (check backend logs)', 'warn');
+    const r = await fetch(`${BACKEND_URL}/api/train`, { method:'POST' });
+    if (r.ok) {
+        alert("ML training complete! New model weights deployed. ✓");
+    } else {
+        alert("Training failed. Ensure claim_store.json has enough data.");
+    }
+  } catch (e) {
+    alert("Triggered retrain. The server will update models in the background.");
+  } finally {
+    btn.disabled = false;
+    btn.className = "bg-slate-800 text-slate-300 px-8 py-3 rounded-xl font-bold text-xs hover:bg-slate-700 transition-all border border-slate-700";
+    btn.innerHTML = 'RETRAIN MODELS';
+    loadTrust();
   }
-  btn.disabled = false;
-  btn.innerHTML = '<i class="fa-solid fa-brain"></i> Retrain Models';
 }
 </script>
 </body>
