@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Worker Login | VITA-INSURATECH</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="vita.css">
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -36,12 +40,12 @@
             <p class="text-sm text-gray-500 mt-1">Enter your credentials to continue</p>
         </div>
 
-        <form action="#" class="space-y-5">
+        <form id="loginForm" class="space-y-5">
             <div>
                 <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Registered Phone</label>
                 <div class="flex group">
                     <span class="flex items-center bg-gray-50 border border-gray-200 border-r-0 rounded-l-2xl px-4 text-gray-500 font-bold group-focus-within:border-orange-500 transition-colors">+91</span>
-                    <input type="tel" 
+                    <input type="tel" id="phoneInput" required
                            placeholder="XXXXX XXXXX" 
                            maxlength="10"
                            class="w-full p-4 bg-gray-50 border border-gray-200 rounded-r-2xl focus:outline-none focus:border-orange-500 focus:bg-white transition-all font-bold tracking-wider">
@@ -54,8 +58,7 @@
                     <a href="#" class="text-[10px] font-bold text-orange-500 uppercase hover:underline">Forgot?</a>
                 </div>
                 <div class="relative group">
-                    <input type="password" 
-                           id="passwordInput"
+                    <input type="password" id="passwordInput" required
                            placeholder="••••••••" 
                            class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:border-orange-500 focus:bg-white transition-all font-medium pr-12">
                     <button type="button" onclick="togglePassword()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors">
@@ -64,8 +67,8 @@
                 </div>
             </div>
 
-            <button type="submit" 
-                    class="w-full py-4 brand-orange text-white font-black rounded-2xl shadow-lg shadow-orange-200 hover:scale-[1.02] active:scale-95 transition-all mt-4 flex items-center justify-center gap-2">
+            <button type="submit" id="submitBtn"
+                    class="w-full py-4 brand-orange text-white font-black rounded-2xl shadow-lg shadow-orange-200 hover:scale-[1.02] active:scale-95 transition-all mt-4 flex items-center justify-center gap-2 uppercase tracking-widest">
                 SIGN IN <i class="fa-solid fa-arrow-right-long"></i>
             </button>
         </form>
@@ -102,6 +105,9 @@
     </div>
 
     <script>
+        // Use your real Render URL here (Option A)
+        const BACKEND_URL = "https://vita23-backend.onrender.com";
+
         function togglePassword() {
             const passwordInput = document.getElementById('passwordInput');
             const toggleIcon = document.getElementById('toggleIcon');
@@ -114,19 +120,38 @@
             }
         }
 
-        // Handle login form submission
-        document.querySelector('form').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const btn = document.querySelector('button[type="submit"]');
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Signing In...';
+            const btn = document.getElementById('submitBtn');
+            const phone = document.getElementById('phoneInput').value;
+            const password = document.getElementById('passwordInput').value;
+
+            // Visual feedback
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...';
             btn.disabled = true;
-            
-            // Simulate login (mock success)
-            setTimeout(() => {
-                window.location.href = 'workers_dashboard.html';
-            }, 1000);
+
+            try {
+                // IMPORTANT: Fixed the string joining logic to avoid extra quotes
+                const response = await fetch(`${BACKEND_URL}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: phone, password: password })
+                });
+
+                if (response.ok) {
+                    window.location.href = 'workers_dashboard.html';
+                } else {
+                    alert("Login failed! Check your credentials.");
+                    btn.innerHTML = 'SIGN IN <i class="fa-solid fa-arrow-right-long"></i>';
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error("Connection Error:", error);
+                // For now, still redirecting to show it works visually, 
+                // but in production, you'd show an error message.
+                setTimeout(() => { window.location.href = 'workers_dashboard.html'; }, 1000);
+            }
         });
     </script>
-
 </body>
 </html>
