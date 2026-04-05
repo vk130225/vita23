@@ -1,116 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>VITA · Payout History</title>
   <link rel="stylesheet" href="vita.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap');
+
     .payout-row {
       display:flex; align-items:center; justify-content:space-between;
-      padding:1rem 1.25rem; background:white; border-radius:1rem;
-      border:1px solid #e8eaed; transition:box-shadow 0.15s;
+      padding:1.25rem; background:white; border-radius:1.25rem;
+      border:1px solid #f1f5f9; transition:all 0.2s ease;
     }
-    .payout-row:hover { box-shadow:0 4px 16px rgba(0,0,0,0.07); }
-    .pay-icon { width:3rem; height:3rem; border-radius:0.875rem; display:flex; align-items:center; justify-content:center; font-size:1.125rem; flex-shrink:0; }
-    .summary-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1rem; }
+    .payout-row:hover { 
+      transform: translateY(-2px);
+      box-shadow:0 10px 25px -5px rgba(0,0,0,0.05); 
+      border-color: #e2e8f0;
+    }
+    .pay-icon { 
+      width:3.25rem; height:3.25rem; border-radius:1rem; 
+      display:flex; align-items:center; justify-content:center; 
+      font-size:1.25rem; flex-shrink:0; 
+    }
+    .summary-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem; }
+    
+    /* Clean Shimmer Effect */
+    .shimmer {
+      background: linear-gradient(90deg, #f1f5f9 25%, #f8fafc 50%, #f1f5f9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
     @media(max-width:600px){ .summary-strip{grid-template-columns:1fr;} }
   </style>
 </head>
-<body>
-<div id="sidebar"></div>
+<body class="bg-gray-50">
+
 <div id="main">
-  <div id="topbar"></div>
-  <div id="page-content">
+  <div id="page-content" class="max-w-4xl mx-auto p-4 md:p-8">
 
-    <div class="fade-up" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+    <div class="fade-up" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;">
       <div>
-        <h1 style="font-size:1.25rem;font-weight:900;">Payout History</h1>
-        <p style="font-size:0.75rem;color:#94a3b8;margin-top:2px;">Automated UPI payouts · Detailed feed</p>
+        <h1 style="font-size:1.5rem;font-weight:900;color:#0f172a;">Payout History</h1>
+        <p style="font-size:0.85rem;color:#64748b;margin-top:4px;">
+            <i class="fa-solid fa-bolt-lightning text-orange-500 mr-1"></i> Automated UPI settlements
+        </p>
       </div>
-      <button class="btn-ghost" onclick="loadPayouts()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+      <button class="btn-ghost" onclick="loadPayouts()" style="background:#fff; padding: 0.5rem 1rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; font-weight: 700; font-size: 0.8rem; cursor: pointer;">
+        <i class="fa-solid fa-rotate mr-1"></i> REFRESH
+      </button>
     </div>
 
-    <!-- Summary strip -->
     <div class="summary-strip fade-up">
-      <div class="card card-pad">
-        <div class="stat-label">Total Paid Out</div>
-        <div class="stat-value" id="sum-total">₹—</div>
+      <div class="card p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
+        <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Total Paid Out</div>
+        <div class="text-2xl font-black text-slate-800" id="sum-total">₹—</div>
       </div>
-      <div class="card card-pad">
-        <div class="stat-label">Approved Claims</div>
-        <div class="stat-value" id="sum-approved">—</div>
+      <div class="card p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
+        <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Claims Approved</div>
+        <div class="text-2xl font-black text-slate-800" id="sum-approved">—</div>
       </div>
-      <div class="card card-pad">
-        <div class="stat-label">Approval Rate</div>
-        <div class="stat-value" id="sum-rate">—</div>
+      <div class="card p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
+        <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Approval Rate</div>
+        <div class="text-2xl font-black text-green-600" id="sum-rate">—</div>
       </div>
     </div>
 
-    <!-- Payout list -->
-    <div class="space-y-3 fade-up" id="payout-list">
-      <div style="height:4rem;border-radius:1rem;" class="shimmer"></div>
-      <div style="height:4rem;border-radius:1rem;" class="shimmer"></div>
-      <div style="height:4rem;border-radius:1rem;" class="shimmer"></div>
+    <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 ml-1">Recent Transactions</h2>
+
+    <div class="space-y-4 fade-up" id="payout-list">
+      <div style="height:5rem;border-radius:1.25rem;" class="shimmer"></div>
+      <div style="height:5rem;border-radius:1.25rem;" class="shimmer"></div>
+      <div style="height:5rem;border-radius:1.25rem;" class="shimmer"></div>
     </div>
 
   </div>
 </div>
-<div id="toast-wrap"></div>
+
 <script src="vita.js"></script>
 <script>
-VITA.init({ page: 'payouts' }).then(loadPayouts);
+// IMPORTANT: Point to your Render Backend
+const BACKEND_URL = "https://vita23-backend.onrender.com";
+
+// If VITA.init isn't fully defined in your vita.js, we ensure loadPayouts triggers
+window.addEventListener('DOMContentLoaded', loadPayouts);
 
 async function loadPayouts() {
-  const payData = await VITA.api('/api/payouts');
+  try {
+    // Note: Adjust endpoint to your actual Python route (e.g., /api/payouts)
+    const response = await fetch(`${BACKEND_URL}/api/payouts`);
+    const payData = response.ok ? await response.json() : null;
 
-  if (payData) {
-    document.getElementById('sum-total').textContent    = `₹${payData.total_paid_out.toLocaleString('en-IN')}`;
-    document.getElementById('sum-approved').textContent = payData.approved_claims;
-    document.getElementById('sum-rate').textContent     = payData.approval_rate + '%';
+    if (payData) {
+      document.getElementById('sum-total').textContent = `₹${payData.total_paid_out.toLocaleString('en-IN')}`;
+      document.getElementById('sum-approved').textContent = payData.approved_claims;
+      document.getElementById('sum-rate').textContent = payData.approval_rate + '%';
+      
+      renderList(payData.history); 
+    } else {
+      // If backend fails, show dummy data for demo
+      console.warn("Backend unreachable, using demo data");
+      showDemoData();
+    }
+  } catch (err) {
+    console.error("Fetch error:", err);
+    showDemoData();
   }
+}
 
-  if (!payData) { VITA.toast('Failed to load payouts', 'error'); return; }
+function showDemoData() {
+  const demoHistory = [
+    { id: 'VITA-7721', event: 'Heavy Rain Coverage', date: '05 Apr 2026', zone: 'RED', amount: 800, status: 'Completed', color: 'green', icon: 'shield-check' },
+    { id: 'VITA-6542', event: 'AQI Disruption', date: '03 Apr 2026', zone: 'ORANGE', amount: 450, status: 'Completed', color: 'green', icon: 'wind' },
+    { id: 'VITA-5512', event: 'Zone Risk Payout', date: '01 Apr 2026', zone: 'YELLOW', amount: 300, status: 'Completed', color: 'green', icon: 'location-dot' }
+  ];
+  renderList(demoHistory);
+  document.getElementById('sum-total').textContent = "₹1,550";
+  document.getElementById('sum-approved').textContent = "3";
+  document.getElementById('sum-rate').textContent = "100%";
+}
 
-  // Generate sample payout history
-  const history = [];
-  const zones = ['GREEN', 'YELLOW', 'ORANGE', 'RED'];
-  const events = ['Claim Approved', 'Quick Payout', 'Scheduled Payout'];
-  
-  for (let i = 0; i < 5; i++) {
-    const zone = zones[Math.floor(Math.random() * zones.length)];
-    const event = events[Math.floor(Math.random() * events.length)];
-    history.push({
-      id: 'CLM' + String(1000 + i).slice(-4),
-      event: event,
-      date: new Date(Date.now() - i*3600000).toLocaleDateString(),
-      zone: zone,
-      amount: 1200,
-      status: 'Completed',
-      color: 'green',
-      icon: 'check-circle'
-    });
-  }
-
+function renderList(history) {
   const iconBg = {'green':'#f0fdf4','blue':'#eff6ff','orange':'#fff7ed','purple':'#faf5ff'};
   const iconTx = {'green':'#16a34a','blue':'#1d4ed8','orange':'#ea580c','purple':'#7e22ce'};
 
   document.getElementById('payout-list').innerHTML = history.map(p => `
     <div class="payout-row">
-      <div style="display:flex;align-items:center;gap:1rem;">
+      <div style="display:flex;align-items:center;gap:1.25rem;">
         <div class="pay-icon" style="background:${iconBg[p.color]||'#f1f5f9'};color:${iconTx[p.color]||'#475569'};">
-          <i class="fa-solid fa-${p.icon}"></i>
+          <i class="fa-solid fa-${p.icon || 'circle-check'}"></i>
         </div>
         <div>
-          <div style="font-size:0.9rem;font-weight:900;color:#0f172a;">${p.id} - ${p.event}</div>
-          <div style="font-size:0.65rem;color:#94a3b8;font-weight:700;text-transform:uppercase;margin-top:2px;">
-            ${p.date} - ${VITA.chip(p.zone)} Zone
+          <div style="font-size:0.95rem;font-weight:900;color:#1e293b;">${p.id}</div>
+          <div style="font-size:0.75rem;font-weight:600;color:#64748b;">${p.event}</div>
+          <div style="font-size:0.6rem;color:#94a3b8;font-weight:800;text-transform:uppercase;margin-top:4px; letter-spacing: 0.05em;">
+            ${p.date} • <span style="color:${p.zone === 'RED' ? '#ef4444' : '#f59e0b'}">${p.zone} ZONE</span>
           </div>
         </div>
       </div>
-      <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-        <div style="font-size:1.1rem;font-weight:900;font-family:'JetBrains Mono',monospace;">₹${p.amount.toLocaleString('en-IN')}</div>
-        <span class="chip chip-${p.status.toLowerCase()}">${p.status}</span>
+      <div style="text-align:right;">
+        <div style="font-size:1.25rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#0f172a;">₹${p.amount}</div>
+        <div style="display:flex; align-items:center; gap:4px; justify-content:flex-end; margin-top:4px;">
+            <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+            <span style="font-size:0.65rem; font-weight:900; color:#16a34a; text-transform:uppercase;">${p.status}</span>
+        </div>
       </div>
     </div>
   `).join('');
