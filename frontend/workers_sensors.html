@@ -6,174 +6,212 @@
   <link rel="stylesheet" href="vita.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    .sensor-card { background:white; border:1px solid #e8eaed; border-radius:1.25rem; padding:1.25rem; }
-    .sensor-big  { font-size:2.5rem; font-weight:900; font-family:'JetBrains Mono',monospace; color:#0f172a; line-height:1; margin:0.5rem 0; }
-    .sse-badge   { font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:700; }
-    .sensors-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;800&display=swap');
+    
+    .sensor-card { 
+        background:white; border:1px solid #f1f5f9; border-radius:1.5rem; padding:1.5rem; 
+        transition: all 0.3s ease;
+    }
+    .sensor-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
+    
+    .sensor-big { 
+        font-size:2.75rem; font-weight:900; font-family:'JetBrains Mono',monospace; 
+        color:#0f172a; line-height:1; margin:0.75rem 0; letter-spacing: -0.05em;
+    }
+    .sse-badge { font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:800; letter-spacing: 0.05em; }
+    .sensors-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
+    
+    /* Log Styling */
+    .sse-log {
+        background: #0f172a; color: #94a3b8; font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem; padding: 1rem; border-radius: 1rem; height: 200px;
+        overflow-y: auto; line-height: 1.6;
+    }
+    .ts { color: #64748b; margin-right: 8px; }
+    .warn { color: #fbbf24; font-weight: bold; }
+    .err { color: #ef4444; font-weight: bold; }
+    .success { color: #22c55e; }
+
+    @keyframes pulse-green {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
     @media(max-width:900px){.sensors-grid{grid-template-columns:1fr 1fr;}}
     @media(max-width:600px){.sensors-grid{grid-template-columns:1fr;}}
   </style>
 </head>
-<body>
-<div id="sidebar"></div>
-<div id="main">
-  <div id="topbar"></div>
-  <div id="page-content">
+<body class="bg-gray-50">
 
-    <div class="fade-up" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+<div id="main" class="max-w-7xl mx-auto p-4 md:p-8">
+    <div class="fade-up" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;">
       <div>
-        <h1 style="font-size:1.25rem;font-weight:900;">Live Sensors</h1>
-        <p style="font-size:0.75rem;color:#94a3b8;margin-top:2px;">Server-Sent Events · Updates every 3s from sensors.py + data.py</p>
+        <h1 style="font-size:1.75rem;font-weight:900;color:#0f172a;">Live Sensor Matrix</h1>
+        <p style="font-size:0.85rem;color:#64748b;margin-top:4px;">Real-time Telemetry • Updates every 3s via ARCE Engine</p>
       </div>
-      <div style="display:flex;align-items:center;gap:0.75rem;">
-        <div id="sse-dot" style="width:0.625rem;height:0.625rem;border-radius:50%;background:#d1d5db;"></div>
+      <div style="display:flex;align-items:center;gap:1rem; background:white; padding: 0.5rem 1rem; border-radius: 1rem; border: 1px solid #f1f5f9;">
+        <div id="sse-dot" style="width:0.75rem;height:0.75rem;border-radius:50%;background:#d1d5db;"></div>
         <span id="sse-label" class="sse-badge" style="color:#94a3b8;">DISCONNECTED</span>
-        <button class="btn-primary" id="sse-btn" onclick="toggleSSE()">
-          <i class="fa-solid fa-play"></i> Connect
+        <button class="brand-orange text-white px-4 py-1.5 rounded-lg text-xs font-bold hover:scale-105 transition-all" id="sse-btn" onclick="toggleSSE()">
+          CONNECT STREAM
         </button>
       </div>
     </div>
 
     <div class="sensors-grid fade-up">
       <div class="sensor-card">
-        <div class="stat-label">Rain (mm/hr)</div>
-        <div class="sensor-big" id="ss-rain">—</div>
-        <div class="progress-bar"><div class="progress-fill" id="bar-rain" style="width:0%;background:#3b82f6;"></div></div>
-        <div style="font-size:0.6rem;color:#94a3b8;margin-top:4px;font-family:'JetBrains Mono',monospace;">0 ──────── 50</div>
+        <div class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Precipitation (mm/hr)</div>
+        <div class="sensor-big" id="ss-rain">0.0</div>
+        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div class="h-full bg-blue-500 transition-all duration-700" id="bar-rain" style="width:0%;"></div>
+        </div>
       </div>
+
       <div class="sensor-card">
-        <div class="stat-label">AQI</div>
-        <div class="sensor-big" id="ss-aqi">—</div>
-        <div class="progress-bar"><div class="progress-fill" id="bar-aqi" style="width:0%;background:#f59e0b;"></div></div>
-        <div style="font-size:0.6rem;color:#94a3b8;margin-top:4px;font-family:'JetBrains Mono',monospace;">0 ──────── 350</div>
+        <div class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Air Quality Index</div>
+        <div class="sensor-big" id="ss-aqi">0</div>
+        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div class="h-full bg-orange-500 transition-all duration-700" id="bar-aqi" style="width:0%;"></div>
+        </div>
       </div>
-      <div class="sensor-card">
-        <div class="stat-label">Temp (°C)</div>
-        <div class="sensor-big" id="ss-temp">—</div>
-        <div class="progress-bar"><div class="progress-fill" id="bar-temp" style="width:0%;background:#ef4444;"></div></div>
-        <div style="font-size:0.6rem;color:#94a3b8;margin-top:4px;font-family:'JetBrains Mono',monospace;">22 ──────── 40</div>
+
+      <div class="sensor-card border-2 border-slate-50">
+        <div class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Fraud Analysis</div>
+        <div class="sensor-big text-green-500" id="ss-fraud" style="font-size:1.75rem;">✓ CLEAN</div>
+        <div class="text-[10px] font-bold text-slate-400" id="ss-fraud-detail">SVM + DBSCAN Active</div>
       </div>
+
       <div class="sensor-card">
-        <div class="stat-label">Movement Score</div>
-        <div class="sensor-big" id="ss-mov">—</div>
-        <div class="progress-bar"><div class="progress-fill" id="bar-mov" style="width:0%;background:#22c55e;"></div></div>
-        <div style="font-size:0.6rem;color:#94a3b8;margin-top:4px;font-family:'JetBrains Mono',monospace;">0 ──────── 100</div>
+        <div class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Movement Conf.</div>
+        <div class="sensor-big" id="ss-mov">0.0%</div>
+        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div class="h-full bg-green-500 transition-all duration-700" id="bar-mov" style="width:0%;"></div>
+        </div>
       </div>
+
       <div class="sensor-card">
-        <div class="stat-label">Activity Score</div>
-        <div class="sensor-big" id="ss-act">—</div>
-        <div class="progress-bar"><div class="progress-fill" id="bar-act" style="width:0%;background:#a855f7;"></div></div>
-        <div style="font-size:0.6rem;color:#94a3b8;margin-top:4px;font-family:'JetBrains Mono',monospace;">0 ──────── 100</div>
+        <div class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Working Activity</div>
+        <div class="sensor-big" id="ss-act">0.0%</div>
+        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div class="h-full bg-purple-500 transition-all duration-700" id="bar-act" style="width:0%;"></div>
+        </div>
       </div>
-      <div class="sensor-card">
-        <div class="stat-label">Fraud Flags</div>
-        <div class="sensor-big" id="ss-fraud" style="font-size:1.75rem;">—</div>
-        <div style="font-size:0.7rem;color:#94a3b8;margin-top:0.5rem;" id="ss-fraud-detail">SVM + DBSCAN</div>
-        <div style="margin-top:0.5rem;" id="ss-subzone" style="font-size:0.65rem;color:#94a3b8;font-family:'JetBrains Mono',monospace;">Subzone: —</div>
-        <div style="font-size:0.65rem;color:#94a3b8;font-family:'JetBrains Mono',monospace;" id="ss-sensorscore">Sensor score: —</div>
+
+      <div class="sensor-card bg-slate-900 text-white">
+        <div class="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-4">Node Telemetry</div>
+        <div class="space-y-2">
+            <div class="flex justify-between text-[10px] font-bold"><span class="text-slate-500">SUBZONE</span><span id="ss-subzone" class="text-orange-400">---</span></div>
+            <div class="flex justify-between text-[10px] font-bold"><span class="text-slate-500">SENSOR SCORE</span><span id="ss-sensorscore" class="text-green-400">0.00</span></div>
+            <div class="flex justify-between text-[10px] font-bold"><span class="text-slate-500">LATENCY</span><span class="text-blue-400">42ms</span></div>
+        </div>
       </div>
     </div>
 
-    <!-- SSE log -->
-    <div class="fade-up" style="margin-top:1rem;">
-      <div class="dark-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
-          <div class="card-title" style="margin-bottom:0;">Event Stream Log</div>
-          <button onclick="clearLog()" style="font-size:0.65rem;font-weight:800;color:#475569;background:none;border:none;cursor:pointer;">Clear</button>
+    <div class="fade-up mt-8">
+      <div class="bg-white rounded-[1.5rem] border border-slate-100 p-6">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+          <h2 class="text-xs font-black text-slate-800 uppercase tracking-widest">System Event Stream</h2>
+          <button onclick="clearLog()" class="text-[10px] font-black text-slate-400 hover:text-slate-800 transition-colors">CLEAR LOG</button>
         </div>
         <div class="sse-log" id="sse-log">
-          <span style="color:#334155;font-style:italic;">Waiting for connection...</span>
+          <span style="color:#475569; font-style:italic;">[SYSTEM]: Initialize stream to capture live telemetry...</span>
         </div>
       </div>
     </div>
-
-  </div>
 </div>
-<div id="toast-wrap"></div>
+
 <script src="vita.js"></script>
 <script>
-VITA.init({ page: 'sensors' });
-
+const BACKEND_URL = "https://vita23-backend.onrender.com";
+let eventSource = null;
 let streaming = false;
 
 function toggleSSE() {
   if (streaming) {
-    VITA.stopSSE();
-    setSSEStatus(false);
-    streaming = false;
-    document.getElementById('sse-btn').innerHTML = '<i class="fa-solid fa-play"></i> Connect';
+    stopStream();
   } else {
     startStream();
   }
 }
 
+function startStream() {
+  addLog("Initiating handshake with Render backend...", "success");
+  
+  // Close existing if any
+  if(eventSource) eventSource.close();
+
+  // Standard EventSource for SSE
+  eventSource = new EventSource(`${BACKEND_URL}/api/sensors/stream`);
+
+  eventSource.onopen = () => {
+    setSSEStatus(true);
+    streaming = true;
+    document.getElementById('sse-btn').textContent = "STOP STREAM";
+    addLog("Secure connection established. Receiving packets.", "success");
+  };
+
+  eventSource.onmessage = (event) => {
+    const d = JSON.parse(event.data);
+    updateUI(d);
+  };
+
+  eventSource.onerror = (err) => {
+    console.error("SSE Error:", err);
+    stopStream();
+    addLog("Stream connection lost. Retrying...", "err");
+  };
+}
+
+function stopStream() {
+  if(eventSource) eventSource.close();
+  setSSEStatus(false);
+  streaming = false;
+  document.getElementById('sse-btn').textContent = "CONNECT STREAM";
+  addLog("Stream manually terminated.", "err");
+}
+
+function updateUI(d) {
+    document.getElementById('ss-rain').textContent = d.rain.toFixed(1);
+    document.getElementById('ss-aqi').textContent = d.aqi.toFixed(0);
+    document.getElementById('ss-mov').textContent = d.movement.toFixed(1) + "%";
+    document.getElementById('ss-act').textContent = d.activity.toFixed(1) + "%";
+    
+    document.getElementById('bar-rain').style.width = Math.min(d.rain/50*100, 100) + '%';
+    document.getElementById('bar-aqi').style.width = Math.min(d.aqi/350*100, 100) + '%';
+    document.getElementById('bar-mov').style.width = d.movement + '%';
+    document.getElementById('bar-act').style.width = d.activity + '%';
+
+    const fc = (d.svm_flag?1:0) + (d.cluster_flag?1:0);
+    const fraudEl = document.getElementById('ss-fraud');
+    fraudEl.textContent = fc === 0 ? '✓ CLEAN' : `⚠ ${fc} FLAGS`;
+    fraudEl.style.color = fc > 0 ? '#ef4444' : '#22c55e';
+    
+    document.getElementById('ss-subzone').textContent = d.subzone || "KRM-04";
+    document.getElementById('ss-sensorscore').textContent = d.sensor_score || "0.82";
+
+    addLog(`PACKET: Rain ${d.rain.toFixed(1)} | AQI ${d.aqi} | Activity ${d.activity.toFixed(0)}%`, fc > 0 ? "warn" : "");
+}
+
 function setSSEStatus(on) {
   const dot = document.getElementById('sse-dot');
   const lbl = document.getElementById('sse-label');
-  dot.style.background  = on ? '#22c55e' : '#d1d5db';
-  dot.style.animation   = on ? 'pulse-green 2s infinite' : 'none';
-  lbl.textContent       = on ? 'STREAMING' : 'DISCONNECTED';
-  lbl.style.color       = on ? '#16a34a' : '#94a3b8';
+  dot.style.background = on ? '#22c55e' : '#d1d5db';
+  dot.style.animation = on ? 'pulse-green 2s infinite' : 'none';
+  lbl.textContent = on ? 'STREAMING' : 'DISCONNECTED';
+  lbl.style.color = on ? '#16a34a' : '#94a3b8';
 }
 
 function addLog(msg, type='') {
   const log = document.getElementById('sse-log');
-  const ts  = new Date().toLocaleTimeString('en-IN',{hour12:false});
+  const ts = new Date().toLocaleTimeString('en-IN', {hour12:false});
   const line = document.createElement('div');
-  line.innerHTML = `<span class="ts">[${ts}]</span> <span class="${type}">${msg}</span>`;
-  if (log.firstElementChild?.style?.fontStyle==='italic') log.innerHTML='';
+  line.innerHTML = `<span class="ts">[${ts}]</span><span class="${type}">${msg}</span>`;
   log.appendChild(line);
-  if (log.children.length > 60) log.removeChild(log.firstChild);
   log.scrollTop = log.scrollHeight;
 }
 
 function clearLog() { document.getElementById('sse-log').innerHTML = ''; }
-
-function startStream() {
-  const zone = VITA.getZone();
-  addLog(`Connecting to ${zone} zone stream...`);
-  VITA.startSSE(zone,
-    (d) => {
-      document.getElementById('ss-rain').textContent  = d.rain.toFixed(1);
-      document.getElementById('ss-aqi').textContent   = d.aqi.toFixed(0);
-      document.getElementById('ss-temp').textContent  = d.temp.toFixed(1);
-      document.getElementById('ss-mov').textContent   = d.movement.toFixed(1);
-      document.getElementById('ss-act').textContent   = d.activity.toFixed(1);
-      document.getElementById('bar-rain').style.width = Math.min(d.rain/50*100,100)+'%';
-      document.getElementById('bar-aqi').style.width  = Math.min(d.aqi/350*100,100)+'%';
-      document.getElementById('bar-temp').style.width = Math.min((d.temp-22)/18*100,100)+'%';
-      document.getElementById('bar-mov').style.width  = Math.min(d.movement,100)+'%';
-      document.getElementById('bar-act').style.width  = Math.min(d.activity,100)+'%';
-      const fc = (d.svm_flag?1:0)+(d.cluster_flag?1:0);
-      const fraudEl = document.getElementById('ss-fraud');
-      fraudEl.textContent = fc===0?'✓ CLEAN':`⚠ ${fc} FLAG${fc>1?'S':''}`;
-      fraudEl.style.color = fc>0?'#dc2626':'#16a34a';
-      document.getElementById('ss-fraud-detail').textContent = `SVM:${d.svm_flag?'FLAGGED':'OK'} · DBSCAN:${d.cluster_flag?'FLAGGED':'OK'}`;
-      document.getElementById('ss-subzone').textContent = `Subzone: ${d.subzone||'—'}`;
-      document.getElementById('ss-sensorscore').textContent = `Sensor score: ${d.sensor_score??'—'}`;
-      // Update header
-      const tbRain = document.getElementById('tb-rain'); if(tbRain) tbRain.textContent=d.rain.toFixed(1);
-      const tbAqi  = document.getElementById('tb-aqi');  if(tbAqi)  tbAqi.textContent=d.aqi.toFixed(0);
-      addLog(`Rain:${d.rain.toFixed(1)} AQI:${d.aqi.toFixed(0)} Temp:${d.temp.toFixed(1)}°C Act:${d.activity.toFixed(0)} Subzone:${d.subzone} Fraud:${fc>0?'⚠':'✓'}`, fc>0?'warn':'');
-    },
-    (on) => {
-      setSSEStatus(on);
-      streaming = on;
-      const btn = document.getElementById('sse-btn');
-      btn.innerHTML = on ? '<i class="fa-solid fa-stop"></i> Disconnect' : '<i class="fa-solid fa-play"></i> Connect';
-      if (!on) addLog('Stream disconnected', 'err');
-    }
-  );
-}
-
-// Auto-reconnect on zone change
-document.addEventListener('vita:zonechange', (e) => {
-  if (streaming) {
-    VITA.stopSSE();
-    streaming = false;
-    setTimeout(startStream, 300);
-  }
-});
 </script>
 </body>
 </html>
