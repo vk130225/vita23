@@ -5,7 +5,9 @@
  */
 
 const VITA = (() => {
-  const API = 'https://vita23-backend.onrender.com';
+  const API_URL = "https://vita23-backend.onrender.com"; 
+// Make sure the slash is handled correctly:
+const finalUrl = API_URL + "/api/worker/AK001";
   let currentZone = localStorage.getItem('vita_zone') || 'ORANGE';
   let sseSource = null;
 
