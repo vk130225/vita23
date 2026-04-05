@@ -5,7 +5,7 @@
  */
 
 const VITA = (() => {
-  const API = 'https://vita23-backend.onrender.com"';
+  const API = 'https://vita23-backend.onrender.com';
   let currentZone = localStorage.getItem('vita_zone') || 'ORANGE';
   let sseSource = null;
 
