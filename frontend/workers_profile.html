@@ -6,183 +6,201 @@
   <link rel="stylesheet" href="vita.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    .profile-grid { display:grid; grid-template-columns:300px 1fr; gap:1rem; }
+    .profile-grid { display:grid; grid-template-columns:320px 1fr; gap:1.5rem; }
     @media(max-width:900px){.profile-grid{grid-template-columns:1fr;}}
-    .field-group { margin-bottom:1rem; }
-    .field-label { font-size:0.6rem; font-weight:900; color:#94a3b8; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px; }
-    .field-value { font-size:0.9rem; font-weight:700; color:#0f172a; }
+    
+    .field-group { margin-bottom:1.25rem; }
+    .field-label { font-size:0.65rem; font-weight:900; color:#94a3b8; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px; }
+    .field-value { font-size:1rem; font-weight:700; color:#1e293b; }
+    
     .field-input {
-      width:100%; padding:0.6rem 0.875rem; border:1.5px solid #e8eaed; border-radius:0.75rem;
+      width:100%; padding:0.75rem 1rem; border:1.5px solid #f1f5f9; border-radius:0.875rem;
       font-family:'Plus Jakarta Sans',sans-serif; font-size:0.875rem; font-weight:600; color:#0f172a;
-      background:white; outline:none; transition:border-color 0.15s;
+      background:#f8fafc; outline:none; transition:all 0.2s;
     }
-    .field-input:focus { border-color:#e65a28; }
-    .kyc-row { display:flex; align-items:center; justify-content:space-between; padding:0.75rem 0; border-bottom:1px solid #f1f5f9; }
+    .field-input:focus { border-color:#e65a28; background:white; box-shadow: 0 0 0 4px rgba(230, 90, 40, 0.1); }
+    
+    .kyc-row { display:flex; align-items:center; justify-content:space-between; padding:1rem 0; border-bottom:1px solid #f1f5f9; }
     .kyc-row:last-child { border-bottom:none; }
+    
+    .avatar-glow { box-shadow: 0 0 20px rgba(230, 90, 40, 0.2); }
   </style>
 </head>
-<body>
-<div id="sidebar"></div>
-<div id="main">
-  <div id="topbar"></div>
-  <div id="page-content">
+<body class="bg-gray-50">
 
-    <div class="fade-up" style="margin-bottom:1.25rem;">
-      <h1 style="font-size:1.25rem;font-weight:900;">Profile & KYC</h1>
-      <p style="font-size:0.75rem;color:#94a3b8;margin-top:2px;">Worker identity · Coverage details</p>
+<div id="main" class="max-w-6xl mx-auto p-4 md:p-8">
+    <div class="fade-up" style="margin-bottom:2rem;">
+      <h1 style="font-size:1.75rem;font-weight:900;color:#0f172a;">Profile & KYC</h1>
+      <p style="font-size:0.85rem;color:#64748b;margin-top:4px;">Manage your identity and payout destinations</p>
     </div>
 
     <div class="profile-grid fade-up">
-      <!-- Profile card -->
-      <div style="display:flex;flex-direction:column;gap:1rem;">
-        <div class="card card-pad" style="text-align:center;">
-          <div style="width:5rem;height:5rem;border-radius:1.25rem;background:#0f172a;display:flex;align-items:center;justify-content:center;color:white;font-size:1.5rem;font-weight:900;margin:0 auto 1rem;" id="prof-avatar">AK</div>
-          <div style="font-size:1.25rem;font-weight:900;" id="prof-name">—</div>
-          <div style="font-size:0.75rem;color:#94a3b8;margin-top:4px;" id="prof-phone">—</div>
-          <div style="margin-top:0.75rem;" id="prof-kyc"></div>
-          <div style="margin-top:0.75rem;" id="prof-zone"></div>
+      <div style="display:flex;flex-direction:column;gap:1.5rem;">
+        <div class="card p-8 bg-white rounded-[2rem] border border-slate-100 shadow-sm text-center">
+          <div style="width:6rem;height:6rem;border-radius:2rem;background:#0f172a;display:flex;align-items:center;justify-content:center;color:white;font-size:2rem;font-weight:900;margin:0 auto 1.5rem;" class="avatar-glow" id="prof-avatar">--</div>
+          <div style="font-size:1.5rem;font-weight:900;color:#0f172a;" id="prof-name">Loading...</div>
+          <div style="font-size:0.85rem;color:#94a3b8;margin-top:6px;font-weight:600;" id="prof-phone">--</div>
+          <div style="margin-top:1.5rem; display:flex; flex-direction:column; gap:8px;" id="prof-badges">
+              </div>
         </div>
 
-        <div class="card card-pad">
-          <div class="card-title">Coverage Summary</div>
+        <div class="card p-8 bg-white rounded-[2rem] border border-slate-100 shadow-sm">
+          <h3 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-6">Coverage Summary</h3>
           <div class="field-group">
             <div class="field-label">Weekly Premium</div>
-            <div class="field-value brand-text" id="prof-premium">₹—</div>
+            <div class="field-value text-orange-600" id="prof-premium">₹--</div>
           </div>
           <div class="field-group">
-            <div class="field-label">Max Payout</div>
-            <div class="field-value" style="color:#16a34a;" id="prof-payout">₹—</div>
-          </div>
-          <div class="field-group">
-            <div class="field-label">UPI ID</div>
-            <div class="field-value mono" id="prof-upi">—</div>
+            <div class="field-label">Max Benefit</div>
+            <div class="field-value text-green-600" id="prof-payout">₹--</div>
           </div>
           <div class="field-group">
             <div class="field-label">Worker ID</div>
-            <div class="field-value mono" id="prof-wid">—</div>
+            <div class="field-value font-mono text-sm" id="prof-wid">--</div>
           </div>
         </div>
       </div>
 
-      <!-- Edit + KYC -->
-      <div style="display:flex;flex-direction:column;gap:1rem;">
-        <!-- Edit form -->
-        <div class="card card-pad">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-            <div class="card-title" style="margin-bottom:0;">Edit Profile</div>
-            <button class="btn-primary" onclick="saveProfile()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+      <div style="display:flex;flex-direction:column;gap:1.5rem;">
+        <div class="card p-8 bg-white rounded-[2rem] border border-slate-100 shadow-sm">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;">
+            <h3 class="text-xs font-black uppercase text-slate-800 tracking-widest">Update Information</h3>
+            <button class="brand-orange text-white px-6 py-2 rounded-xl font-bold text-xs hover:scale-105 transition-all" onclick="saveProfile()">
+                <i class="fa-solid fa-floppy-disk mr-2"></i> SAVE CHANGES
+            </button>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1.5rem;">
             <div>
-              <div class="field-label">Full Name</div>
-              <input class="field-input" id="edit-name" placeholder="Your name">
+              <div class="field-label">Full Legal Name</div>
+              <input class="field-input" id="edit-name" placeholder="Alex Kumar">
             </div>
             <div>
-              <div class="field-label">Phone</div>
+              <div class="field-label">Contact Number</div>
               <input class="field-input" id="edit-phone" placeholder="+91 ...">
             </div>
             <div>
-              <div class="field-label">UPI ID</div>
-              <input class="field-input" id="edit-upi" placeholder="name@upi">
+              <div class="field-label">UPI ID for Payouts</div>
+              <input class="field-input" id="edit-upi" placeholder="alex@okicici">
             </div>
             <div>
-              <div class="field-label">Zone</div>
+              <div class="field-label">Default Operating Zone</div>
               <select class="field-input" id="edit-zone">
-                <option value="GREEN">GREEN</option>
-                <option value="YELLOW">YELLOW</option>
-                <option value="ORANGE">ORANGE</option>
-                <option value="RED">RED</option>
+                <option value="GREEN">GREEN ZONE</option>
+                <option value="YELLOW">YELLOW ZONE</option>
+                <option value="ORANGE">ORANGE ZONE</option>
+                <option value="RED">RED ZONE</option>
               </select>
             </div>
           </div>
         </div>
 
-        <!-- KYC checklist -->
-        <div class="card card-pad">
-          <div class="card-title">KYC Status</div>
+        <div class="card p-8 bg-white rounded-[2rem] border border-slate-100 shadow-sm">
+          <h3 class="text-xs font-black uppercase text-slate-800 tracking-widest mb-6">KYC Compliance</h3>
           <div id="kyc-list">
             <div class="kyc-row">
-              <div style="display:flex;align-items:center;gap:0.75rem;">
-                <i class="fa-solid fa-id-card" style="color:#16a34a;width:1rem;"></i>
-                <span style="font-size:0.875rem;font-weight:700;">Aadhaar Card</span>
+              <div style="display:flex;align-items:center;gap:1rem;">
+                <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                    <i class="fa-solid fa-id-card"></i>
+                </div>
+                <span style="font-size:0.9rem;font-weight:700;color:#334155;">Aadhaar Verification</span>
               </div>
-              <span class="chip chip-APPROVED">VERIFIED</span>
+              <span class="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-[10px] font-black">VERIFIED</span>
             </div>
             <div class="kyc-row">
-              <div style="display:flex;align-items:center;gap:0.75rem;">
-                <i class="fa-solid fa-mobile-screen" style="color:#16a34a;width:1rem;"></i>
-                <span style="font-size:0.875rem;font-weight:700;">Phone OTP</span>
+              <div style="display:flex;align-items:center;gap:1rem;">
+                <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+                <span style="font-size:0.9rem;font-weight:700;color:#334155;">UPI Linkage</span>
               </div>
-              <span class="chip chip-APPROVED">VERIFIED</span>
+              <span class="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-[10px] font-black">ACTIVE</span>
             </div>
             <div class="kyc-row">
-              <div style="display:flex;align-items:center;gap:0.75rem;">
-                <i class="fa-solid fa-wallet" style="color:#16a34a;width:1rem;"></i>
-                <span style="font-size:0.875rem;font-weight:700;">UPI Account</span>
+              <div style="display:flex;align-items:center;gap:1rem;">
+                <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                    <i class="fa-solid fa-motorcycle"></i>
+                </div>
+                <span style="font-size:0.9rem;font-weight:700;color:#334155;">Platform Identity</span>
               </div>
-              <span class="chip chip-APPROVED">LINKED</span>
-            </div>
-            <div class="kyc-row">
-              <div style="display:flex;align-items:center;gap:0.75rem;">
-                <i class="fa-solid fa-motorcycle" style="color:#16a34a;width:1rem;"></i>
-                <span style="font-size:0.875rem;font-weight:700;">Platform Worker</span>
-              </div>
-              <span class="chip chip-APPROVED">ACTIVE</span>
+              <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-[10px] font-black">AUTHENTICATED</span>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-  </div>
 </div>
-<div id="toast-wrap"></div>
+
 <script src="vita.js"></script>
 <script>
-VITA.init({ page: 'profile' }).then(loadProfile);
+const BACKEND_URL = "https://vita23-backend.onrender.com";
+
+// Auto-load profile on start
+window.addEventListener('DOMContentLoaded', loadProfile);
 
 async function loadProfile() {
-  const w = await VITA.api('/api/worker/AK001');
-  if (!w) { VITA.toast('Failed to load profile', 'error'); return; }
+  try {
+    // Assuming AK001 is the hardcoded test user ID for now
+    const response = await fetch(`${BACKEND_URL}/api/worker/AK001`);
+    if (!response.ok) throw new Error("Load failed");
+    
+    const w = await response.json();
 
-  document.getElementById('prof-avatar').textContent = w.initials || w.name.split(' ').map(x=>x[0]).join('');
-  document.getElementById('prof-name').textContent   = w.name;
-  document.getElementById('prof-phone').textContent  = w.phone;
-  document.getElementById('prof-kyc').innerHTML      = `<span class="chip chip-APPROVED">KYC ${w.kyc_status}</span>`;
-  document.getElementById('prof-zone').innerHTML     = VITA.chip(w.zone || 'ORANGE');
-  document.getElementById('prof-premium').textContent = `₹${w.weekly_premium}`;
-  document.getElementById('prof-payout').textContent  = `₹${w.potential_payout}`;
-  document.getElementById('prof-upi').textContent     = w.upi_id;
-  document.getElementById('prof-wid').textContent     = w.worker_id;
+    // Update UI
+    document.getElementById('prof-avatar').textContent = w.name.split(' ').map(x=>x[0]).join('').toUpperCase();
+    document.getElementById('prof-name').textContent   = w.name;
+    document.getElementById('prof-phone').textContent  = w.phone;
+    
+    document.getElementById('prof-badges').innerHTML = `
+        <span class="px-4 py-1.5 bg-green-50 text-green-600 rounded-full text-[10px] font-black uppercase tracking-wider border border-green-100">KYC ${w.kyc_status || 'VERIFIED'}</span>
+        <span class="px-4 py-1.5 bg-orange-50 text-orange-600 rounded-full text-[10px] font-black uppercase tracking-wider border border-orange-100">${w.zone || 'ORANGE'} ZONE</span>
+    `;
 
-  // Pre-fill edit form
-  document.getElementById('edit-name').value  = w.name;
-  document.getElementById('edit-phone').value = w.phone;
-  document.getElementById('edit-upi').value   = w.upi_id;
-  document.getElementById('edit-zone').value  = w.zone || 'ORANGE';
+    document.getElementById('prof-premium').textContent = `₹${w.weekly_premium || '39'}`;
+    document.getElementById('prof-payout').textContent  = `₹${w.potential_payout || '1,200'}`;
+    document.getElementById('prof-wid').textContent     = w.worker_id || 'VITA-AK001';
+
+    // Pre-fill edit form
+    document.getElementById('edit-name').value  = w.name;
+    document.getElementById('edit-phone').value = w.phone;
+    document.getElementById('edit-upi').value   = w.upi_id || '';
+    document.getElementById('edit-zone').value  = w.zone || 'ORANGE';
+
+  } catch (err) {
+    console.error(err);
+    alert("Backend unreachable. Please ensure Render service is active.");
+  }
 }
 
 async function saveProfile() {
+  const saveBtn = document.querySelector('button[onclick="saveProfile()"]');
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> SAVING...';
+
   const payload = {
     name:   document.getElementById('edit-name').value,
     phone:  document.getElementById('edit-phone').value,
     upi_id: document.getElementById('edit-upi').value,
     zone:   document.getElementById('edit-zone').value,
   };
+
   try {
-    const r = await fetch(VITA.API + '/api/worker/AK001', {
+    const r = await fetch(`${BACKEND_URL}/api/worker/AK001`, {
       method: 'PUT',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify(payload),
     });
+
     if (r.ok) {
-      VITA.toast('Profile saved ✓', 'success');
+      alert('Profile successfully updated! ✓');
       loadProfile();
     } else {
-      VITA.toast('Save failed', 'error');
+      alert('Update failed. Check backend logs.');
     }
-  } catch {
-    VITA.toast('Backend unreachable', 'error');
+  } catch (err) {
+    alert('Connection error to Render.');
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-2"></i> SAVE CHANGES';
   }
 }
 </script>
