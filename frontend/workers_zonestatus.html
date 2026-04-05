@@ -6,122 +6,151 @@
   <link rel="stylesheet" href="vita.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    .zone-card { border-radius:1.25rem; padding:1.25rem; border:1.5px solid; }
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap');
+
+    .zone-card { border-radius:1.5rem; padding:1.5rem; border:1px solid; transition: transform 0.3s ease; }
+    .zone-card:hover { transform: translateY(-5px); }
+    
     .zone-card-GREEN  { background:#f0fdf4; border-color:#bbf7d0; }
     .zone-card-YELLOW { background:#fefce8; border-color:#fde68a; }
     .zone-card-ORANGE { background:#fff7ed; border-color:#fed7aa; }
     .zone-card-RED    { background:#fef2f2; border-color:#fecaca; }
-    .zone-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
-    .zone-big { font-size:2rem; font-weight:900; font-family:'JetBrains Mono',monospace; }
+    
+    .zone-big { font-size:2.25rem; font-weight:900; font-family:'JetBrains Mono',monospace; line-height: 1; }
     .zone-big-GREEN  { color:#16a34a; }
     .zone-big-YELLOW { color:#ca8a04; }
     .zone-big-ORANGE { color:#ea580c; }
     .zone-big-RED    { color:#dc2626; }
-    .zone-row { display:flex; justify-content:space-between; align-items:center; padding:0.375rem 0; border-bottom:1px solid rgba(0,0,0,0.04); font-size:0.8rem; }
+    
+    .zone-row { display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0; border-bottom:1px solid rgba(0,0,0,0.05); font-size:0.85rem; }
     .zone-row:last-child { border-bottom:none; }
-    .multiplier-bar { height:6px; background:#e8eaed; border-radius:99px; overflow:hidden; margin-top:0.5rem; }
-    .multiplier-fill { height:100%; border-radius:99px; transition:width 0.7s ease; }
+    
+    .multiplier-bar { height:8px; background:rgba(0,0,0,0.05); border-radius:99px; overflow:hidden; margin-top:0.5rem; }
+    .multiplier-fill { height:100%; border-radius:99px; transition:width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    @media(max-width:768px){ .grid-2 { grid-template-columns: 1fr; } }
   </style>
 </head>
-<body>
-<div id="sidebar"></div>
-<div id="main">
-  <div id="topbar"></div>
-  <div id="page-content">
+<body class="bg-gray-50">
 
-    <div class="fade-up" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+<div id="main" class="max-w-7xl mx-auto p-4 md:p-8">
+    <div class="fade-up" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;">
       <div>
-        <h1 style="font-size:1.25rem;font-weight:900;">Zone Status</h1>
-        <p style="font-size:0.75rem;color:#94a3b8;margin-top:2px;">Real-time risk multipliers from arce_history.json</p>
+        <h1 style="font-size:1.75rem;font-weight:900;color:#0f172a;">Zone Risk Analytics</h1>
+        <p style="font-size:0.85rem;color:#64748b;margin-top:4px;">
+            <i class="fa-solid fa-map-location-dot text-orange-500 mr-1"></i> Real-time multipliers via ARCE Engine
+        </p>
       </div>
-      <button class="btn-ghost" onclick="loadZones()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+      <button class="brand-orange text-white px-6 py-2.5 rounded-xl font-bold text-xs hover:scale-105 transition-all" onclick="loadZones()">
+        <i class="fa-solid fa-rotate mr-2"></i> REFRESH DATA
+      </button>
     </div>
 
-    <!-- Zone cards 2×2 -->
     <div class="grid-2 fade-up" id="zone-grid">
-      <div style="height:200px;border-radius:1.25rem;" class="shimmer"></div>
-      <div style="height:200px;border-radius:1.25rem;" class="shimmer"></div>
-      <div style="height:200px;border-radius:1.25rem;" class="shimmer"></div>
-      <div style="height:200px;border-radius:1.25rem;" class="shimmer"></div>
+      <div style="height:250px;border-radius:1.5rem;" class="shimmer bg-white border border-slate-100"></div>
+      <div style="height:250px;border-radius:1.5rem;" class="shimmer bg-white border border-slate-100"></div>
+      <div style="height:250px;border-radius:1.5rem;" class="shimmer bg-white border border-slate-100"></div>
+      <div style="height:250px;border-radius:1.5rem;" class="shimmer bg-white border border-slate-100"></div>
     </div>
 
-    <!-- Summary table -->
-    <div class="card fade-up" style="overflow:hidden;margin-top:1rem;">
-      <div style="padding:1rem 1.25rem;border-bottom:1px solid #f0f0f0;">
-        <div class="card-title" style="margin-bottom:0;">Zone Comparison</div>
+    <div class="mt-8 bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden fade-up">
+      <div class="p-6 border-b border-slate-50">
+        <h3 class="text-xs font-black uppercase text-slate-800 tracking-widest">Zone Matrix Comparison</h3>
       </div>
-      <div style="overflow-x:auto;">
-        <table class="vita-table">
-          <thead>
-            <tr><th>Zone</th><th>Claims</th><th>Risk Multiplier</th><th>Weekly Premium</th><th>Max Payout</th><th>Areas</th></tr>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            <tr>
+              <th class="px-6 py-4">Risk Tier</th>
+              <th class="px-6 py-4">Total Claims</th>
+              <th class="px-6 py-4">Multiplier</th>
+              <th class="px-6 py-4">Premium</th>
+              <th class="px-6 py-4">Max Benefit</th>
+              <th class="px-6 py-4">Mapped Areas</th>
+            </tr>
           </thead>
-          <tbody id="zone-table"></tbody>
+          <tbody id="zone-table" class="divide-y divide-slate-50 font-medium text-sm">
+             </tbody>
         </table>
       </div>
     </div>
-
-  </div>
 </div>
-<div id="toast-wrap"></div>
+
 <script src="vita.js"></script>
 <script>
-VITA.init({ page: 'zone' }).then(loadZones);
+const BACKEND_URL = "https://vita23-backend.onrender.com";
+
+window.addEventListener('DOMContentLoaded', loadZones);
 
 async function loadZones() {
-  const response = await VITA.api('/api/zone/status');
-  if (!response || !response.zones) { VITA.toast('Failed to load zone data', 'error'); return; }
-  
-  const data = {};
-  response.zones.forEach(z => {
-    data[z.zone] = z;
-  });
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/zone/status`);
+    const result = await response.json();
+    
+    if (!response.ok) throw new Error("API Failure");
 
-  const zones = ['GREEN','YELLOW','ORANGE','RED'];
-  const icons = {GREEN:'leaf',YELLOW:'sun',ORANGE:'cloud-rain',RED:'triangle-exclamation'};
-  const maxClaims = Math.max(...zones.map(z => data[z]?.claims || 0), 1);
-  const maxMult   = 3.0;
+    const data = {};
+    result.zones.forEach(z => { data[z.zone] = z; });
 
-  document.getElementById('zone-grid').innerHTML = zones.map(z => {
-    const d = data[z];
-    const fillColor = {GREEN:'#22c55e',YELLOW:'#eab308',ORANGE:'#f97316',RED:'#ef4444'}[z];
-    const multPct = Math.min((d.risk_multiplier / maxMult)*100, 100);
-    return `
-      <div class="zone-card zone-card-${z} fade-up">
-        <div class="zone-header">
-          <div>
-            <div style="font-size:0.6rem;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:0.08em;">${z} Zone</div>
-            <div class="zone-big zone-big-${z}">${d.claims}</div>
-            <div style="font-size:0.7rem;color:#94a3b8;font-weight:700;">total claims</div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-size:2rem;opacity:0.15;"><i class="fa-solid fa-${icons[z]}"></i></div>
-            ${VITA.chip(z)}
-          </div>
-        </div>
-        <div class="zone-row"><span style="font-size:0.75rem;color:#64748b;">Weekly Premium</span> <b>₹${d.weekly_premium}</b></div>
-        <div class="zone-row"><span style="font-size:0.75rem;color:#64748b;">Max Payout</span> <b>₹${d.max_payout}</b></div>
-        <div class="zone-row"><span style="font-size:0.75rem;color:#64748b;">Risk Multiplier</span> <b>${d.risk_multiplier.toFixed(3)}×</b></div>
-        <div class="zone-row"><span style="font-size:0.75rem;color:#64748b;">Areas</span> <span style="font-size:0.7rem;color:#475569;">${d.areas}</span></div>
-        <div style="margin-top:0.75rem;">
-          <div style="font-size:0.55rem;font-weight:800;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Risk multiplier pressure</div>
-          <div class="multiplier-bar">
-            <div class="multiplier-fill" style="width:${multPct}%;background:${fillColor};"></div>
-          </div>
-        </div>
-      </div>`;
-  }).join('');
+    const zones = ['GREEN','YELLOW','ORANGE','RED'];
+    const icons = {GREEN:'leaf', YELLOW:'sun', ORANGE:'cloud-rain', RED:'triangle-exclamation'};
+    const maxMult = 3.0;
 
-  document.getElementById('zone-table').innerHTML = zones.map(z => {
-    const d = data[z];
-    return `<tr>
-      <td>${VITA.chip(z)}</td>
-      <td class="mono" style="font-weight:900;">${d.claims}</td>
-      <td class="mono">${d.risk_multiplier.toFixed(3)}×</td>
-      <td class="mono">₹${d.weekly_premium}</td>
-      <td class="mono" style="color:#16a34a;font-weight:900;">₹${d.max_payout}</td>
-      <td style="font-size:0.7rem;color:#64748b;">${d.areas}</td>
-    </tr>`;
-  }).join('');
+    // Render Cards
+    document.getElementById('zone-grid').innerHTML = zones.map(z => {
+        const d = data[z] || { claims: 0, risk_multiplier: 1.0, weekly_premium: 0, max_payout: 0, areas: 'None' };
+        const fillColor = {GREEN:'#22c55e', YELLOW:'#eab308', ORANGE:'#f97316', RED:'#ef4444'}[z];
+        const multPct = Math.min((d.risk_multiplier / maxMult) * 100, 100);
+        
+        return `
+          <div class="zone-card zone-card-${z}">
+            <div class="flex justify-between items-start mb-6">
+              <div>
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${z} TIER</div>
+                <div class="zone-big zone-big-${z} mt-1">${d.claims}</div>
+                <div class="text-[10px] font-bold text-slate-400 uppercase mt-1">Validated Claims</div>
+              </div>
+              <div class="text-3xl opacity-20"><i class="fa-solid fa-${icons[z]}"></i></div>
+            </div>
+            
+            <div class="space-y-1">
+                <div class="zone-row"><span>Weekly Premium</span> <b class="text-slate-800">₹${d.weekly_premium}</b></div>
+                <div class="zone-row"><span>Max Benefit</span> <b class="text-green-600">₹${d.max_payout}</b></div>
+                <div class="zone-row"><span>Risk Multiplier</span> <b class="text-orange-600">${d.risk_multiplier.toFixed(3)}×</b></div>
+            </div>
+
+            <div class="mt-6">
+              <div class="flex justify-between text-[10px] font-black text-slate-400 uppercase mb-2">
+                <span>Risk Pressure</span>
+                <span>${multPct.toFixed(0)}%</span>
+              </div>
+              <div class="multiplier-bar">
+                <div class="multiplier-fill" style="width:${multPct}%; background:${fillColor};"></div>
+              </div>
+            </div>
+          </div>`;
+    }).join('');
+
+    // Render Table
+    document.getElementById('zone-table').innerHTML = zones.map(z => {
+        const d = data[z];
+        const tierColor = {GREEN:'text-green-600', YELLOW:'text-yellow-600', ORANGE:'text-orange-600', RED:'text-red-600'}[z];
+        return `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-6 py-4 font-black ${tierColor}">${z}</td>
+            <td class="px-6 py-4 font-mono font-bold">${d.claims}</td>
+            <td class="px-6 py-4 font-mono font-bold text-orange-600">${d.risk_multiplier.toFixed(3)}x</td>
+            <td class="px-6 py-4">₹${d.weekly_premium}</td>
+            <td class="px-6 py-4 font-black text-green-600">₹${d.max_payout}</td>
+            <td class="px-6 py-4 text-xs text-slate-400 max-w-xs truncate">${d.areas}</td>
+          </tr>`;
+    }).join('');
+
+  } catch (err) {
+    console.error(err);
+    alert("Connection to VITA Render service lost. Check your internet.");
+  }
 }
 </script>
 </body>
